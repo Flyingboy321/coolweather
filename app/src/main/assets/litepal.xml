@@ -1,0 +1,11 @@
+<litepal>
+    <!--创建数据库-->
+    <dbname value="cool_weather"/>
+    <version value="1"/>
+    <list>
+        <!--创建三张表格-->
+        <mapping class="com.hhxy.coolweather.db.Province"/>
+        <mapping class="com.hhxy.coolweather.db.City"/>
+        <mapping class="com.hhxy.coolweather.db.County"/>
+    </list>
+</litepal>
