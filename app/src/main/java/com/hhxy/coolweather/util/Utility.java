@@ -3,9 +3,11 @@ package com.hhxy.coolweather.util;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.hhxy.coolweather.db.City;
 import com.hhxy.coolweather.db.County;
 import com.hhxy.coolweather.db.Province;
+import com.hhxy.coolweather.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,5 +86,34 @@ public class Utility {
             }
         }
         return false;
+    }
+//    解析具体天气数据，返回天气对象
+//{
+//    HeWeather: [
+//    {
+//        aqi: {},
+//        basic: {},
+//        daily_forecast: [],
+//        hourly_forecast: [],
+//        now: {},
+//        status: "ok",
+//        suggestion: {}
+//    }
+//    ]
+//}
+    public static Weather handleWeatherResponse(String response){
+        try {
+//            首先得到对象
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.get(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+//        如果解析失败，返回null
+        return null;
+
     }
 }

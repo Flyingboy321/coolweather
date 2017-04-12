@@ -1,5 +1,6 @@
 package com.hhxy.coolweather.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hhxy.coolweather.R;
+import com.hhxy.coolweather.WeatherActivity;
 import com.hhxy.coolweather.db.City;
 import com.hhxy.coolweather.db.County;
 import com.hhxy.coolweather.db.Province;
@@ -90,7 +92,12 @@ public class ChooseAreaFragment extends Fragment {
 //                    获取点击了那个市
                     selectedCity = cityList.get(position);
                     queryCounty();
-
+                }else if (currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+//                    getActivity().finish();
                 }
             }
         });
