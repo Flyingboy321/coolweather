@@ -2,15 +2,18 @@ package com.hhxy.coolweather;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.hhxy.coolweather.gson.Forecast;
@@ -38,6 +41,9 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView carWashText;
     private TextView sportText;
     private ImageView bingPicImg;
+    private String weatherId;
+    private SwipeRefreshLayout swipeRefresh;
+    private Button navButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +73,24 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText = (TextView) findViewById(R.id.car_wash_text);
         sportText = (TextView) findViewById(R.id.sport_text);
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
+        navButton = (Button) findViewById(R.id.nav_button);
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+//        找到刷新布局文件
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                重新请求天气信息
+                requestWeather(weatherId);
+
+            }
+        });
 
 //        获得文件的SharedPreferences 对象，后面要将天气的具体消息缓存到sp文件中
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -77,10 +101,10 @@ public class WeatherActivity extends AppCompatActivity {
         }else {
 //            无缓存就从服务器中获取
 //            首先获得前面activity中传来的天气id,注意在前一个activity  item点击事件中存入的键应该是weather—id
-            String weatherId = getIntent().getStringExtra("weather_id");
+            weatherId = getIntent().getStringExtra("weather_id");
             requestWeather(weatherId);
-
         }
+
 
     }
 
@@ -91,6 +115,16 @@ public class WeatherActivity extends AppCompatActivity {
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+//                这里要打印，不然程序就会蹦
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefresh.setRefreshing(false);
+                        Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
 
             }
 
@@ -105,6 +139,8 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         showWeatherInfo(weather);
+//                        关闭进度条
+                        swipeRefresh.setRefreshing(false);
 
                     }
                 });
